@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Expense Tracker Pro</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #0f0f0f;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.card {
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.top {
+    display: flex;
+    gap: 20px;
+}
+
+.top .card {
+    flex: 1;
+}
+
+.green { color: #00c896; }
+.red { color: #ff4d4d; }
+
+input, select, button {
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    border-radius: 6px;
+    border: none;
+}
+
+button {
+    background: #333;
+    color: white;
+    cursor: pointer;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+}
+
+.transaction {
+    display: flex;
+    justify-content: space-between;
+    background: #2a2a2a;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+}
+
+.bar {
+    height: 10px;
+    border-radius: 5px;
+    margin: 5px 0;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+
+
+    <div class="top">
+        <div class="card">
+            <h3>Total Income</h3>
+            <h2 class="green" id="income">₹0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Expenses</h3>
+            <h2 class="red" id="expense">₹0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Balance</h3>
+            <h2 class="green" id="balance">₹0</h2>
+        </div>
+    </div>
+
+
+    <div class="card">
+        <h3>Add Transaction</h3>
+
+        <div class="row">
+            <button onclick="type='income'">+ Income</button>
+            <button onclick="type='expense'">- Expense</button>
+        </div>
+
+        <div class="row">
+            <input id="desc" placeholder="Description">
+            <input id="amount" type="number" placeholder="Amount">
+            <input id="date" type="date">
+        </div>
+
+        <div class="row">
+            <select id="category">
+                <option>Food</option>
+                <option>Transport</option>
+                <option>Entertainment</option>
+                <option>Salary</option>
+            </select>
+            <input id="note" placeholder="Note (optional)">
+        </div>
+
+        <button onclick="add()">Add Transaction</button>
+    </div>
+
+
+    <div class="card">
+        <h3>Transactions</h3>
+        <div id="list"></div>
+    </div>
+
+    <div class="card">
+        <h3>Spending by category</h3>
+        <div id="bars"></div>
+    </div>
+
+</div>
+
+<script>
+let data = [];
+let type = "income";
+
+function add() {
+    let desc = document.getElementById("desc").value;
+    let amount = Number(document.getElementById("amount").value);
+    let date = document.getElementById("date").value;
+    let category = document.getElementById("category").value;
+    let note = document.getElementById("note").value;
+
+    if(!desc || !amount) return;
+
+    if(type === "expense") amount = -Math.abs(amount);
+
+    data.push({desc, amount, date, category, note});
+    render();
+}
+
+function render() {
+    let list = document.getElementById("list");
+    let bars = document.getElementById("bars");
+
+    list.innerHTML = "";
+    bars.innerHTML = "";
+
+    let income = 0, expense = 0;
+
+    let catTotal = {};
+
+    data.forEach((d, i) => {
+
+        let div = document.createElement("div");
+        div.className = "transaction";
+
+        div.innerHTML = `
+            <div>
+                <b>${d.desc}</b><br>
+                ${d.category} - ${d.date}
+            </div>
+            <div>
+                <span class="${d.amount>0?'green':'red'}">
+                    ₹${d.amount}
+                </span>
+                <button onclick="del(${i})">X</button>
+            </div>
+        `;
+
+        list.appendChild(div);
+
+        if(d.amount > 0) income += d.amount;
+        else expense += d.amount;
+
+        if(d.amount < 0) {
+            catTotal[d.category] = (catTotal[d.category] || 0) + Math.abs(d.amount);
+        }
+    });
+
+    document.getElementById("income").innerText = "₹" + income;
+    document.getElementById("expense").innerText = "₹" + Math.abs(expense);
+    document.getElementById("balance").innerText = "₹" + (income + expense);
+
+
+    for(let c in catTotal) {
+        let val = catTotal[c];
+
+        let div = document.createElement("div");
+        div.innerHTML = `
+            ${c} ₹${val}
+            <div class="bar" style="width:${val/50}px;background:teal;"></div>
+        `;
+        bars.appendChild(div);
+    }
+}
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+function del(i) {
+    data.splice(i,1);
+    render();
+}
+</script>
+
+</body>
+</html>
